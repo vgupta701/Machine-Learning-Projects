@@ -1,0 +1,169 @@
+---
+title: "Into To Machine Learning Exam Assignment"
+author: "Vishal Anand Gupta"
+date: "8/12/2023"
+output: pdf_document
+---
+
+# Association rule mining
+
+Revisit the notes on association rule mining and the R example on music playlists: [playlists.R](https://github.com/dpuelz/STA380/blob/master/R/playlists.R) and [playlists.csv](https://github.com/dpuelz/STA380/blob/master/data/playlists.csv). Then use the data on grocery purchases in [groceries.txt](https://github.com/dpuelz/STA380/blob/master/data/groceries.txt) and find some interesting association rules for these shopping baskets. The data file is a list of shopping baskets: one person's basket for each row, with multiple items per row separated by commas. Pick your own thresholds for lift and confidence; just be clear what these thresholds are and say why you picked them. Do your discovered item sets make sense? Present your discoveries in an interesting and visually appealing way.
+
+Notes:
+
+-   This is an exercise in visual and numerical story-telling. Do be clear in your description of what you've done, but keep the focus on the data, the figures, and the insights your analysis has drawn from the data, rather than technical details.
+
+-   The data file is a list of baskets: one row per basket, with multiple items per row separated by commas. You'll have to cobble together your own code for processing this into the format expected by the "arules" package. This is not intrinsically all that hard, but it is the kind of data-wrangling wrinkle you'll encounter frequently on real problems, where your software package expects data in one format and the data comes in a different format. Figuring out how to bridge that gap is part of the assignment, and so we won't be giving tips on this front.
+
+### Loading the required libraries
+
+```{r}
+library(tidyverse) 
+library(igraph) 
+library(arules) 
+library(arulesViz)
+```
+
+### Load the data from "groceries.txt"
+
+```{r}
+groceries <- readLines("groceries.txt")
+```
+
+### Create a data frame with serial numbers and items
+
+```{r}
+groceries_v2 <- data.frame(serial = seq_along(groceries), items = groceries)
+```
+
+### Split items into separate rows
+
+```{r}
+groceries_v3 <- groceries_v2 %>% separate_rows(items, sep = ",")
+```
+
+### Remove leading and trailing spaces
+
+```{r}
+groceries_v3$items <- trimws(groceries_v3$items)
+```
+
+### Display the pivoted data
+
+```{r}
+head(groceries_v3)
+```
+
+### Generate a frequency table of items
+
+```{r}
+item_freq <- table(groceries_v3$items)
+```
+
+### Get the top 20 items by frequency
+
+```{r}
+top_items <- names(sort(item_freq, decreasing = TRUE))[1:20]
+```
+
+### Filter the frequency table for the top items
+
+```{r}
+top_item_freq <- item_freq[top_items]
+```
+
+### Create a bar plot using the frequencies
+
+```{r}
+barplot(top_item_freq, las = 2, cex.names = 0.6, main = "Top 20 items in groceries", xlab = "items", ylab = "Frequency")
+```
+
+We can see that whole milk, other vegetables , rolls/buns etc. are the most frequent purchases. These items are likely to show up with high betweenness..
+
+### Turn serial into a factor
+
+```{r}
+groceries_v3$serial = factor(groceries_v3$serial)
+```
+
+### First create a list of baskets: vectors of items by consumer
+
+### Apriori algorithm expects a list of baskets in a special format. In this case, one "basket" of items per user.
+
+### First split data into a list of items for each consumer
+
+```{r}
+groceries_v4 = split(x=groceries_v3$items, f=groceries_v3$serial)
+```
+
+### Remove duplicates ("de-dupe")
+
+```{r}
+groceries_v4 = lapply(groceries_v4, unique)
+```
+
+### Cast this variable as a special arules "transactions" class.
+
+```{r}
+grocery_trans = as(groceries_v4, "transactions") 
+summary(grocery_trans)
+```
+
+### Now run the 'apriori' algorithm
+
+### Look at rules with support \> .005 & confidence \>.1 & length (\# items) \<= 4
+
+```{r}
+groceryrules = apriori(grocery_trans, parameter=list(support=.005, confidence=.1, maxlen=4))
+
+inspect(groceryrules)
+```
+
+There are far too many rules to look at. Let us filter with certain values of lift, confidence and support.
+
+### Choose a subset
+
+```{r}
+inspect(subset(groceryrules, subset=lift > 2)) 
+inspect(subset(groceryrules, subset=confidence > 0.5)) 
+inspect(subset(groceryrules, subset=lift > 2 & confidence > 0.5))
+```
+
+With lift\>2 and confidence\>0.5 we get 107 rules which is a reasonable number to look at. As expected whole milk and other vegetables show up most frequently on the rhs.
+
+### Plot all the rules in (support, confidence) space. Notice that high lift rules tend to have low support
+
+```{r}
+plot(groceryrules)
+```
+
+### Swapping the axes and color scales
+
+```{r}
+plot(groceryrules, measure = c("support", "lift"), shading = "confidence")
+```
+
+### "two key" plot: coloring is by size (order) of item set
+
+```{r}
+plot(groceryrules, method='two-key plot')
+```
+
+Support decreases as the order of the item set increases.
+
+### Can now look at subsets driven by the plot
+
+```{r}
+inspect(subset(groceryrules, support > 0.025)) 
+inspect(subset(groceryrules, confidence > 0.6)) 
+inspect(subset(groceryrules, lift > 2))
+```
+
+### Graph-based visualization export:
+
+```{r}
+groceries_graph = associations2igraph(subset(groceryrules, lift>2, confidence > 0.5), associationsAsNodes = FALSE)
+igraph::write_graph(groceries_graph, file='groceries.graphml', format = "graphml")
+```
+
+### For Graph visualization please refer to the Gephi export.
