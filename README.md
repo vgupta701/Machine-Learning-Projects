@@ -3,8 +3,8 @@ output:
   pdf_document: default
   html_document: default
 ---
-# STA 380
-## Fangshu Song, Siyi Liu, Vishal Anand Gupta, Yu Xia
+# STA 380 -Intro to ML Part 2 - Assignment
+## Group Members - Fangshu Song, Siyi Liu, Vishal Anand Gupta, Yu Xia
 
 
 ## Probability practice
@@ -66,61 +66,145 @@ In summary, the bar plot not only showcases the achievements of artists in terms
 
 ## Visual story telling part 1: green buildings
 The code provides a visual exploration of the rent distributions for green and non-green buildings and investigates whether the building class (Class A) could be a confounding variable in the relationship between green certification and rent.
-The codes below will show all the details:
-<a href="https://github.com/dongdanyu/ml_final_project/blob/main/green_buildings/greenbuildings.ipynb">green buildings</a>
+Please find the code here:
+<a href="https://github.com/dongdanyu/ml_final_project/blob/main/green_buildings/greenbuildings_updated.ipynb">green buildings</a>
 
 
-**Visual Analysis** 
+**We can start by validating what the excel guru found in his analysis** 
 
-The chart is boxplots, visualize the rent distribution for green vs. non-green buildings. Then, we can visually compare the median and other quartiles of rent for both groups.
+![Green_Median_Rent](/green_buildings/Green_Median_Rent.png)
 
-![Rent_Distribution](/green_buildings/green_vs_nongreen.png)
+The median rent for green buildings is indeed $2.6 higher than the non-green ones
 
+**Let's look at the variation of rent by each of the variables.** 
 
-**Possible Confounders** 
+Starting with the numerical variables first:
 
-Identifing possible confounding variables. Factors like building class (Class A, Class B), age, renovations, and amenities could influence the rent, regardless of the green rating. The chart show if the effect of being a Class A building is a stronger determinant of rent than the green rating.
+![Size](/green_buildings/Size.png)
 
-![confounding variables](/green_buildings/buildingclass_and_greenrate.png)
+![Empl_gr](/green_buildings/Empl_gr.png)
 
+![Leasing_Rate](/green_buildings/Leasing_Rate.png)
+
+![Stories](/green_buildings/Stories.png)
+
+![Age](/green_buildings/Age.png)
+
+![Cluster](/green_buildings/Cluster.png)
+
+![Cd_total_07](/green_buildings/Cd_total_07.png)
+
+![Hd_total07](/green_buildings/Hd_total07.png)
+
+![Total_dd_07](/green_buildings/Total_dd_07.png)
+
+![Precipitation](/green_buildings/Precipitation.png)
+
+![Gas_Cost](/green_buildings/Gas_Cost.png)
+
+![Electricity](/green_buildings/Electricity.png)
+
+![Cluster_rent](/green_buildings/Cluster_rent.png)
+
+Overall, we can say that the rent has a positive relationship with leasing rate and cluster rent.
+
+**Now, let's look at the categorical variables:**
+
+![Renovated](/green_buildings/Renovated.png)
+
+![Class_a](/green_buildings/Class_a.png)
+
+![Leed](/green_buildings/Leed.png)
+
+![Energystar](/green_buildings/Energystar.png)
+
+![Net](/green_buildings/Net.png)
+
+![Amenities](/green_buildings/Amenities.png)
+
+**From the above graphs we can draw the following conclusions:**
+
+Renovated buildings draw lower rent
+
+Class a buildings draw higher rent
+
+Buildings with net contract draw lower rent
+
+**Now, we can check the following hypothesis to see if something else is causing the higher median rent in case of green buildings:**
+
+Are non-renovated building over-represented among Green buildings?
+
+Are Class a buildings over-represented among green buildings?
+
+Are buildings with net contract under-represented among green buildings?
+
+**Let's start with renovated vs non-renovated**
+
+![renovated_2](/green_buildings/renovated_2.png)
+
+So, non-green buildings have much higher proportion of renovated buildings which draw lower rent
+
+**Let's look at Class_a**
+
+![Class_A_2](/green_buildings/Class_A_2.png)
+
+Disproportionate majority of Green buildings are Class A
+
+**Net Contract**
+
+![Net_2](/green_buildings/Net_2.png)
+
+No major difference in net contract buildings between green and non-green buildings
+
+**So, we can safely conclude that the overrepresentation of Class A buildings among the Green buildings are probably causing the median rent of the latter to inflate.**
+
+**In order to adjust for such a confounder we can look specifically at the median rent among non-class a buildings within Green and non-Green buildings**
+
+![Class_A_3](/green_buildings/Class_A_3.png)
+
+When we look at non-Class A buildings, the Green buildings are only $0.25/sq ft/year higher than the non-Green buildings. If we multiply that by 250,000 sq.ft. we get: $62500/year
+
+If we now divide the premium of $5 million by $62,500, we get: 80 years
 
 **Conclusion:** 
 
-From the visual analyses, we can draw the effect of the green rating on rent while considering other confounders. The ultimate decision will depend on the combination of these insights and the specific numbers (like the calculated ROI period) from the initial analysis. Similar visual analyses can be performed with other possible confounders (e.g., age, renovated, amenities) to check if these variables could be affecting the observed difference in rents.
+It would take 80 years to recuperate the costs incurred to get Green certification which does not seem to be a viable deal. Thus, the project is not worth from an economic perspective.
 
 
 
 ## Visual story telling part 2: Capital Metro data
-The code employs Python's data manipulation library, pandas, along with visualization tools seaborn and matplotlib, to analyze bus ridership patterns for UT-Austin's Capital Metro network. 
-The codes below will show all the details:
 
-<a href="https://github.com/dongdanyu/ml_final_project/blob/main/capmetro_UT/capmetro_UT.ipynb">Capital UT</a>
+The jupyter notebook with the code for this problem can be found here - <a href="https://github.com/dongdanyu/ml_final_project/blob/main/capmetro_UT/capmetro_UT_updated.ipynb">Capital UT</a>
 
+**We can first look at average boardings and alightings of each of the days by hour**
 
-**Average Boarding**
+![Boardings_day_hour](/capmetro_UT/Boardings_day_hour.png)
 
-Presents a heatmap, revealing the average number of boardings for each hour and day of the week, giving a birds-eye view of peak travel times. 
+The boarding pattern makes sense as the frequency is the highest between 12 noon to 7 PM which is when students are most likely to travel to their schools and back home
 
-![average number of boardings](/capmetro_UT/heatmap_of_averageboarding.png)
+![Alightings_day_hour](/capmetro_UT/Alightings_day_hour.png)
 
+There seems to be something off with the alighting data as it is completely contradictory to the boarding pattern. Volume of alighting peaks around 8 AM in the mornin when majority of the people have not even boarded the bus.
 
-**Average Temperature and Total Boarding**
+**Therefore, for the purpose of our analysis, we will ignore alighting data.**
 
-This chart is "Line Chart of Average Temperature and Total Boarding". A dual-axis line chart contrasts hourly boardings with the average temperature, suggesting any correlation between weather and ridership. Both these line plots share the same x-axis (hour of the day) but have different y-axes on the left (temperature) and right (boardings). A title is set to describe the plot, and it's then displayed.
+**Let us now look at the impact of temerature on boardings**
 
-![correlation](/capmetro_UT/avergetemperature_vs_totalboarding.png)
+![Boardings_Temp](/capmetro_UT/Boardings_Temp.png)
 
+As we can see, boardings are much lower during low temperatures and become more frequent during higher temperatures.
 
-**Facet Grid of Net Ridership by Month**
+**Let's now look at variation of boardings by months**
 
-A series of line plots showcases net ridership (boardings minus alightings) changes for each month, highlighting monthly trends in usage patterns. The map function of the FacetGrid object allows to plot net ridership against hour of the day for each month. Each of these plots is a simple line plot (plt.plot) with dots (marker=".") representing data points. Then set up titles and labels for the FacetGrid plots.
+![Boardings_Month](/capmetro_UT/Boardings_Month.png)
 
-![monthly trends](/capmetro_UT/net_ridership.png)
+Avg Boardings in October is slightly higher than the other two months
 
+![Boardings_Month_Hour](/capmetro_UT/Boardings_Month_Hour.png)
 
-**Conclusion:**
+Hourly pattern of boardings in each of the months is almost the same
 
-The UT-Austin's Capital Metro ridership shows patterns influenced by time, day, and temperature, suggesting typical commuter habits and weather-based preferences. Monthly changes might reflect academic or seasonal events. These findings are crucial for optimizing transit services.
+**Overall, we can conclude that boardings are likely to be higher during the month of October on weekdays between 12 noon to 7 PM especially when the temperature is higher.**
 
 
 ## Clustering and dimensionality reduction  
