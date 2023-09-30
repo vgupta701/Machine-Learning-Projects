@@ -6,6 +6,7 @@ output:
 # STA 380 -Intro to ML Part 2 - Assignment
 ## Group Members - Fangshu Song, Siyi Liu, Vishal Anand Gupta, Yu Xia
 
+## Read all the questions here - <a href="https://github.com/vgupta701/Machine-Learning-Projects/blob/main/Questions_README.md">Questions</a>.
 
 ## Probability practice
 
